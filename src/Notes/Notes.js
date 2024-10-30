@@ -1,5 +1,6 @@
 import './Notes.css';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
+import { ToastContext } from './context/ToastContext';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
@@ -22,6 +23,7 @@ const noteslist = [
 ];
 
 const Notes = () => {
+const {showHideToast} = useContext(ToastContext)
   const [addnote, setAddnote] = useState(noteslist);
   const [descriptioninput, setDescriptioninput] = useState("");
   const [displayedNoteType, setdisplayedNoteType] = useState('all');
@@ -54,6 +56,8 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
     setAddnote(updatedNotes);
     localStorage.setItem("notesave", JSON.stringify(updatedNotes));
     setShowDeleteAlert(false);
+    showHideToast("تم الحذف بنجاح")
+
   }
 
   // دالة لإغلاق الـDialog
@@ -91,6 +95,8 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
     });
     setAddnote(updatedNotes);
     localStorage.setItem("notesave", JSON.stringify(updatedNotes));
+    showHideToast("تم التعديل بنجاح")
+
   }
 
   // دالة لإضافة ملاحظة جديدة
@@ -104,6 +110,7 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
     setAddnote(updateednotesave);
     localStorage.setItem("notesave", JSON.stringify(updateednotesave));
     setDescriptioninput("");
+    showHideToast("تم الإضافة بنجاح")
   };
 
   // مصفوفات التصفية

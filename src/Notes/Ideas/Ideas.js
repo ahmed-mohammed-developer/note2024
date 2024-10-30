@@ -1,13 +1,16 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Button from '@mui/material/Button';
-
+import { ToastContext } from '../context/ToastContext';
 
 const Ideas = ({ note, handleCheckClick,  showDeletDialog, showUpdateDialog }) => {
+  const {showHideToast} = useContext(ToastContext)
+
   function handleCheckTrueIsComplet() {
     handleCheckClick(note.id);
+    showHideToast("تم الإضافة إلى المهام المنجزة بنجاح")
   }
 
   function handleUpdatClick() {
