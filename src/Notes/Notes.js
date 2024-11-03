@@ -16,14 +16,21 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import { AllInclusive, CheckCircle, Cancel } from '@mui/icons-material'; // استيراد الأيقونات
+
+
+
 
 const noteslist = [
   { id: uuidv4(), description: 'قراءة كتاب', isCompleted: false },
   { id: uuidv4(), description: 'مذاكرة الإنجليزي', isCompleted: false }
 ];
+const observer = new ResizeObserver((entries) => {
+  // إضافة ملاحظة هنا لتجنب مشكلة الحلقة
+});
 
 const Notes = () => {
-const {showHideToast} = useContext(ToastContext)
+  const { showHideToast } = useContext(ToastContext);
   const [addnote, setAddnote] = useState(noteslist);
   const [descriptioninput, setDescriptioninput] = useState("");
   const [displayedNoteType, setdisplayedNoteType] = useState('all');
@@ -34,6 +41,15 @@ const [updatanote, setupdatanote] = useState("");
 const [showUpdataAlert, setShowUpdataAlert] = useState(false);
 
 
+
+
+
+// التأكد من إيقاف المراقب قبل التحديث
+useEffect(() => {
+  observer.disconnect();
+  // أي عمليات تحتاج للتحديث هنا
+  observer.observe(document.querySelector('.note'));
+}, [addnote]);
 
 
   // دالة لمعالجة الضغط على زر الإنجاز
@@ -145,8 +161,6 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
         showDeletDialog={() => showDeletDialog(n.id)}
         showUpdateDialog={() => showUpdateDialog(n.id, n.description)}
       />
-      
-      
       );
     });
 
@@ -175,12 +189,19 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
   }
 
   // استخدام تأثير لتحميل الملاحظات من التخزين المحلي عند تحميل المكون
-  useEffect(() => {
-    const storgNote = JSON.parse(localStorage.getItem("notesave"));
-    setAddnote(storgNote);
-  }, []);
+  // استخدام تأثير لتحميل الملاحظات من التخزين المحلي عند تحميل المكون
+useEffect(() => {
+  const storedNotes = JSON.parse(localStorage.getItem("notesave"));
+  if (storedNotes && Array.isArray(storedNotes)) {
+    setAddnote(storedNotes);
+  } else {
+    setAddnote(noteslist); // قم بتعيين المصفوفة الافتراضية في حالة عدم وجود ملاحظات محفوظة
+  }
+}, []);
+
 
   return (
+    
     <div className='note'>
       {/* DELETE MODEL */}
       <Dialog
@@ -236,51 +257,58 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
 
       {/* Edit MODEL */}
       <CssBaseline />
-      <Container maxWidth="lg">
+      <Container maxWidth="sm" className='containerNote'>
         <Typography variant="h2" gutterBottom className='titlenote'>
           قائمة المهام:
         </Typography>
-        <ToggleButtonGroup
-          color="primary"
-          value={displayedNoteType}
-          exclusive
-          onChange={handleChangeType}
-        >
-          <ToggleButton value="all">جميع المهام</ToggleButton>
-          <ToggleButton value="completed">المهام المنجزة</ToggleButton>
-          <ToggleButton value="non-completed">المهام غير المنجزة</ToggleButton>
-        </ToggleButtonGroup>
+        
+    <ToggleButtonGroup
+      color="primary"
+      value={displayedNoteType}
+      exclusive
+      onChange={handleChangeType}
+      className='togglemain'
+    >
+      <ToggleButton value="all" className='fonZise'>
+        <AllInclusive style={{ marginLeft: "5px" }} />  المهام
+      </ToggleButton>
+      <ToggleButton value="completed" className='fonZise'>
+        <CheckCircle style={{ marginLeft: "5px" }} />  المنجزة
+      </ToggleButton>
+      <ToggleButton value="non-completed" className='fonZise'>
+      <Cancel style={{ marginLeft: "5px" }} />
+          غير المنجزة
+      </ToggleButton>
+    </ToggleButtonGroup>
+
+
         {displayedNoteType === 'all' && (
           <Grid container spacing={2}>
             <Grid item xs={12} md={12}>
               <div>
-                <TextField
-                  id="filled-multiline-static"
-                  multiline
-                  rows={4}
-                  variant="filled"
-                  fullWidth
-                  className='rightsection'
-                  value={descriptioninput}
-                  onChange={(e) => {
-                    setDescriptioninput(e.target.value);
-                  }}
-                />
-                <Stack spacing={2} direction="row">
-                  <Button
-                    variant="contained"
-                    style={{
-                      background: '#fff',
-                      color: 'black',
-                      fontWeight: 400,
-                      border: '1px solid black'
-                    }}
-                    onClick={handleAddnote}
-                    disabled={descriptioninput.length === 0}
-                  >
-                    إضافة
-                  </Button>
-                </Stack>
+      <TextField
+      id="filled-multiline-static"
+      multiline
+      rows={2} // فقط صف واحد
+      variant="filled"
+      fullWidth
+      value={descriptioninput}
+      onChange={(e) => {
+        setDescriptioninput(e.target.value);
+      }}
+      className='inputStyle'
+    />
+                
+    <Stack spacing={2} direction="row">
+      <Button
+        variant="contained"
+        onClick={handleAddnote}
+        disabled={descriptioninput.length === 0}
+        className='buttonStart'
+      >
+        إضافة
+      </Button>
+    </Stack>
               </div>
             </Grid>
           </Grid>
@@ -291,13 +319,13 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
               <Grid item xs={12} md={12}>
                 <div className="leftSection">
                   <h3>المهام غير المنجزة</h3>
-                  {Ideasmap}
+                  <ul>{Ideasmap}</ul>
                 </div>
               </Grid>
             </Grid>
             <Grid container spacing={2}>
               <Grid item xs={12} lg={12}>
-                <div className="checkSection">
+                <div className="leftSection" style={{marginTop: '20px'}}>
                   <h3>المهام المنجزة</h3>
                   <ul>{CompletedTasks}</ul>
                 </div>
@@ -309,8 +337,7 @@ const [showUpdataAlert, setShowUpdataAlert] = useState(false);
         {displayedNoteType === 'completed' && (
           <Grid container spacing={2}>
             <Grid item xs={12} lg={12}>
-              <div className="checkSection">
-                <h3>المهام المنجزة</h3>
+            <div className="leftSection" style={{marginTop: '20px'}}>                <h3>المهام المنجزة</h3>
                 <ul>{CompletedTasks}</ul>
               </div>
             </Grid>

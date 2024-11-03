@@ -1,28 +1,19 @@
 import * as React from 'react';
 import Snackbar from '@mui/material/Snackbar';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
 
 export default function MySnakBar({ open, message }) {
-  const action = (
-    <React.Fragment>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  );
-
   return (
     <div>
       <Snackbar
         open={open}
         autoHideDuration={6000}
         message={message}
-        action={action}
+        ContentProps={{
+          style: {
+            backgroundColor: '#223b40', // تغيير لون الخلفية إلى الأخضر
+            color: 'white', // تغيير لون النص إلى الأبيض
+          },
+        }}
       />
     </div>
   );
